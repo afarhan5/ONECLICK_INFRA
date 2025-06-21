@@ -35,7 +35,7 @@ pipeline {
                         def publicIP = sh(script: "terraform output -raw public_ip", returnStdout: true).trim()
                         writeFile file: "../${ANSIBLE_DIR}/inventory.ini", text: """
 [grafana]
-${publicIP} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/grafana-key.pem
+${publicIP} ansible_user=ubuntu
 """
                     }
                 }
@@ -46,7 +46,7 @@ ${publicIP} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/grafana-key.
             steps {
                 sshagent (credentials: ['grafana-key']) {
                     dir("${ANSIBLE_DIR}") {
-                        sh 'ansible-playbook -i inventory install-grafana.yml'
+                        sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini install-grafana.yml'
                     }
                 }
             }
