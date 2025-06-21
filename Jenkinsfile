@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-user/grafana-oneclick-infra.git'
+                git 'https://github.com/afarhan5/ONECLICK_INFRA.git'
             }
         }
 
