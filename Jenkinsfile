@@ -46,7 +46,7 @@ ${publicIP} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/grafana-key.
             steps {
                 sshagent (credentials: ['grafana-key']) {
                     dir("${ANSIBLE_DIR}") {
-                        sh 'ansible-playbook -i inventory.ini grafana.yml'
+                        sh 'ansible-playbook -i inventory install-grafana.yml'
                     }
                 }
             }
