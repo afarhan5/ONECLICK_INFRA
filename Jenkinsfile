@@ -1,47 +1,55 @@
 pipeline {
     agent any
 
+    environment {
+        TF_DIR = "terraform"
+        ANSIBLE_DIR = "ansible"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/afarhan5/ONECLICK_INFRA.git'
+                git branch: 'main', url: 'https://github.com/afarhan5/ONECLICK_INFRA.git'
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Init & Apply') {
             steps {
-                sh 'terraform init'
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                sh 'terraform apply -auto-approve'
-            }
-        }
-
-        stage('Extract IP') {
-            steps {
-                script {
-                    def ip = sh(script: "terraform output -raw public_ip", returnStdout: true).trim()
-                    writeFile file: 'ansible/inventory', text: "[grafana]\n${ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/your-key.pem"
+                withCredentials([usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    dir("${TF_DIR}") {
+                        sh '''
+                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                            terraform init
+                            terraform apply -auto-approve
+                        '''
+                    }
                 }
             }
         }
 
-        stage('Run Ansible') {
+        stage('Generate Inventory') {
             steps {
-                sh 'ansible-playbook -i ansible/inventory ansible/install-grafana.yml'
+                dir("${TF_DIR}") {
+                    script {
+                        def publicIP = sh(script: "terraform output -raw public_ip", returnStdout: true).trim()
+                        writeFile file: "../${ANSIBLE_DIR}/inventory.ini", text: """
+[grafana]
+${publicIP} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/grafana-key.pem
+"""
+                    }
+                }
             }
         }
-    }
 
-    post {
-        success {
-            echo 'Grafana deployed successfully!'
-        }
-        failure {
-            echo 'Deployment failed!'
+        stage('Ansible Provisioning') {
+            steps {
+                sshagent (credentials: ['grafana-key']) {
+                    dir("${ANSIBLE_DIR}") {
+                        sh 'ansible-playbook -i inventory.ini grafana.yml'
+                    }
+                }
+            }
         }
     }
 }
