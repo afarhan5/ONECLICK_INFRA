@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_instance" "grafana" {
   ami           = "ami-0c2b8ca1dad447f8a"
   instance_type = "t2.micro"
-  key_name      = "your-key"
+  key_name      = "AKIAR7HWXWTQKF5LVNYJ"
   tags = {
     Name = "Grafana-Instance"
   }
