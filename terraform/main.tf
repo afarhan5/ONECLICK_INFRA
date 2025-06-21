@@ -79,7 +79,7 @@ resource "aws_security_group" "grafana_sg" {
 resource "aws_instance" "grafana" {
   ami           = "ami-0c2b8ca1dad447f8a"
   instance_type = "t2.micro"
-  key_name      = "key.pem" # Replace with actual key
+  key_name      = "key.pem.pem" # Replace with actual key
   subnet_id     = aws_subnet.main_subnet.id
   vpc_security_group_ids = [aws_security_group.grafana_sg.id]
 
