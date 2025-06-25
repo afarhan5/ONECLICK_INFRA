@@ -6,7 +6,7 @@ provider "aws" {
 resource "aws_vpc" "main_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = "Grafana-VPC"
+    Name = "MainVPC"
   }
 }
 
@@ -17,7 +17,7 @@ resource "aws_subnet" "main_subnet" {
   availability_zone = "us-east-1a"
   map_public_ip_on_launch = true
   tags = {
-    Name = "Grafana-Subnet"
+    Name = "MainSubnet"
   }
 }
 
@@ -25,7 +25,7 @@ resource "aws_subnet" "main_subnet" {
 resource "aws_internet_gateway" "main_igw" {
   vpc_id = aws_vpc.main_vpc.id
   tags = {
-    Name = "Grafana-IGW"
+    Name = "MainIGW"
   }
 }
 
@@ -37,7 +37,7 @@ resource "aws_route_table" "main_rt" {
     gateway_id = aws_internet_gateway.main_igw.id
   }
   tags = {
-    Name = "Grafana-RouteTable"
+    Name = "MainRouteTable"
   }
 }
 
