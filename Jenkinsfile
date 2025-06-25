@@ -7,17 +7,23 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/afarhan5/ONECLICK_INFRA.git'
             }
         }
 
+        stage('Approval to Apply Terraform') {
+            steps {
+                input message: "Proceed with Terraform apply?"
+            }
+        }
+
         stage('Terraform Init & Apply') {
             steps {
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']
-                ]) {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds'
+                ]]) {
                     dir("${TF_DIR}") {
                         sh '''
                             terraform init
@@ -28,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Generate Inventory') {
+        stage('Generate Ansible Inventory') {
             steps {
                 dir("${TF_DIR}") {
                     script {
@@ -42,7 +48,13 @@ ${publicIP} ansible_user=ubuntu
             }
         }
 
-        stage('Ansible Provisioning') {
+        stage('Approval to Run Ansible Playbook') {
+            steps {
+                input message: "Proceed with Ansible provisioning?"
+            }
+        }
+
+        stage('Run Ansible Playbook') {
             steps {
                 sshagent (credentials: ['grafana-key']) {
                     dir("${ANSIBLE_DIR}") {
