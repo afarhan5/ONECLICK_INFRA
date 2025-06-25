@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 # 1. VPC
-resource "aws_vpc" "main_vpc" {
+resource "aws_vpc" "Grafana_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
     Name = "MainVPC"
@@ -11,7 +11,7 @@ resource "aws_vpc" "main_vpc" {
 }
 
 # 2. Subnet
-resource "aws_subnet" "main_subnet" {
+resource "aws_subnet" "Grafana_subnet" {
   vpc_id            = aws_vpc.main_vpc.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "us-east-1a"
@@ -22,7 +22,7 @@ resource "aws_subnet" "main_subnet" {
 }
 
 # 3. Internet Gateway
-resource "aws_internet_gateway" "main_igw" {
+resource "aws_internet_gateway" "Grafana_igw" {
   vpc_id = aws_vpc.main_vpc.id
   tags = {
     Name = "MainIGW"
@@ -30,7 +30,7 @@ resource "aws_internet_gateway" "main_igw" {
 }
 
 # 4. Route Table
-resource "aws_route_table" "main_rt" {
+resource "aws_route_table" "Grafana_rt" {
   vpc_id = aws_vpc.main_vpc.id
   route {
     cidr_block = "0.0.0.0/0"
@@ -42,13 +42,13 @@ resource "aws_route_table" "main_rt" {
 }
 
 # 5. Route Table Association
-resource "aws_route_table_association" "main_rta" {
+resource "aws_route_table_association" "Grafana_rta" {
   subnet_id      = aws_subnet.main_subnet.id
   route_table_id = aws_route_table.main_rt.id
 }
 
 # 6. Security Group (you already have this or keep as-is)
-resource "aws_security_group" "grafana_sg" {
+resource "aws_security_group" "Grafana_sg" {
   name_prefix = "grafana-"
   description = "Allow SSH and Grafana"
   vpc_id      = aws_vpc.main_vpc.id
@@ -76,7 +76,7 @@ resource "aws_security_group" "grafana_sg" {
 }
 
 # 7. EC2 Instance
-resource "aws_instance" "grafana" {
+resource "aws_instance" "Grafana" {
   ami           = "ami-0c2b8ca1dad447f8a"
   instance_type = "t2.micro"
   key_name      = "key" # Replace with actual key
