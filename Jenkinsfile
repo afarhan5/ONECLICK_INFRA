@@ -1,3 +1,4 @@
+[media pointer="file-service://file-P83e4xAE78q4BXudzjv87v"]
 pipeline {
     agent any
 
@@ -13,17 +14,11 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply Approval') {
-            steps {
-                input message: "Do you want to apply Terraform changes?"
-            }
-        }
-
         stage('Terraform Init & Apply') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds'
-                ]]) {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']
+                ]) {
                     dir("${TF_DIR}") {
                         sh '''
                             terraform init
@@ -45,12 +40,6 @@ ${publicIP} ansible_user=ubuntu
 """
                     }
                 }
-            }
-        }
-
-        stage('Ansible Run Approval') {
-            steps {
-                input message: "Do you want to run the Ansible playbook?"
             }
         }
 
