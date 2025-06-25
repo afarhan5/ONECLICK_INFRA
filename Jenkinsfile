@@ -1,4 +1,3 @@
-[media pointer="file-service://file-P83e4xAE78q4BXudzjv87v"]
 pipeline {
     agent any
 
